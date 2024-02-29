@@ -4,12 +4,13 @@ An easy to use python tool for turning text files to excel files in batches.
 ---
 
 ## install
+
 first, clone the project to your computer
 ```sh
 git clone https://github.com/MoooseBoi/batch-txt2xlsx.git
 cd batch-txt2xlsx
 ```
-alternativly, download and extract the release .zip file.
+alternativly, click the `project.zip` file, download raw, and extract on your computer.
 
 second, install the required dependencies with
 ```sh
