@@ -11,29 +11,35 @@ def column_index(decimal):
     result = ""
 
     while decimal > 0:
-        carry = (decimal % 22) - 1
-        result = letters[carry] + result
+        digit = (decimal % 22) - 1
+        result = letters[digit] + result
         decimal //= 22
 
     return result
 
 
-def worker(filename, config: dict):
+def worker(filename, config):
     print(f"extracting {filename}")
 
     workbook = Workbook()
     sheet = workbook.active
 
     with open(f"in/{filename}.txt", "r") as file:
-        data = file.read().replace("\r\n", "\n")
+        data = file.read()
+        data = data.replace("\r\n", "\n")
 
-    # TODO: the for lines are too long and complex, seperate config handle from for loops
-    for i, row_data in enumerate(data.split("\n")[config.get("row_offset", 0):], start=1):
-        i += config.get("row_buffer", 0)
+    rows = data.split("\n")[config.get("row_offset", 0):]
 
-        for j, col_data in enumerate(row_data.split("\t")[config.get("col_offset", 0):], start=1):
-            col = column_index(j + config.get("col_buffer", 0))
-            index = col + str(i)
+    row_start = config.get("row_buffer", 0) + 1
+    col_start = config.get("col_buffer", 0) + 1
+
+    for row, row_data in enumerate(rows, start=row_start):
+
+        cols = row_data.split("\t")[config.get("col_offset", 0):]
+
+        for col, col_data in enumerate(cols, start=col_start):
+            col = column_index(col + config.get("col_buffer", 0))
+            index = col + str(row)
             sheet[index] = col_data
 
     workbook.save(filename=f"out/{filename}.xlsx")
