@@ -1,6 +1,5 @@
 import os
 import shutil
-import traceback
 import json
 from openpyxl import Workbook
 from multiprocessing import Pool
