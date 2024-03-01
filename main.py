@@ -3,7 +3,7 @@ import shutil
 import traceback
 import json
 from openpyxl import Workbook
-from concurrent.futures import ThreadPoolExecutor
+from multiprocessing import Pool
 
 
 def column_index(decimal):
@@ -19,7 +19,7 @@ def column_index(decimal):
 
 
 def worker(filename, config):
-    print(f"extracting {filename}")
+    print(f"Processing {filename}")
 
     workbook = Workbook()
     sheet = workbook.active
@@ -48,17 +48,22 @@ def worker(filename, config):
     print(f"finished {filename}")
 
 
+def worker_process(args):
+    filename, config = args
+    try:
+        worker(filename, config)
+    except Exception as e:
+        print(f"Error while processing {filename}: {e}")
+
+
 def main():
     with open("config.json", "r") as file:
         config = json.load(file)
 
-    with ThreadPoolExecutor(max_workers=8) as executor:
-        futures = [executor.submit(worker, file[:-4], config) for file in os.listdir("in/")]
-        for future in futures:
-            try:
-                future.result()
-            except Exception as e:
-                traceback.print_exception(e)
+    input_files = os.listdir("in/")
+
+    with Pool() as pool:
+        pool.map(worker_process, [(file[:-4], config) for file in input_files])
 
 
 if __name__ == "__main__":
